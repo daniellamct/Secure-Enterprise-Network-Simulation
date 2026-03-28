@@ -1,0 +1,133 @@
+Router#sh run
+Building configuration...
+
+Current configuration : 2227 bytes
+!
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router
+!
+!
+!
+!
+ip dhcp excluded-address 192.168.1.1 192.168.1.9
+ip dhcp excluded-address 192.168.3.1 192.168.3.9
+ip dhcp excluded-address 192.168.4.1 192.168.4.9
+ip dhcp excluded-address 192.168.2.1 192.168.2.9
+!
+ip dhcp pool vlan20
+ network 192.168.2.0 255.255.255.0
+ default-router 192.168.2.1
+ dns-server 192.168.1.10
+ip dhcp pool vlan30
+ network 192.168.3.0 255.255.255.0
+ default-router 192.168.3.1
+ dns-server 192.168.1.10
+ip dhcp pool vlan40
+ network 192.168.4.0 255.255.255.0
+ default-router 192.168.4.1
+ dns-server 8.8.8.10
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+!
+!
+!
+license udi pid CISCO1941/K9 sn FTX1524RS30-
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0
+ no ip address
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.2.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/0.30
+ encapsulation dot1Q 30
+ ip address 192.168.3.1 255.255.255.0
+ ip nat inside
+ ip access-group finance in
+!
+interface GigabitEthernet0/0.40
+ encapsulation dot1Q 40
+ ip address 192.168.4.1 255.255.255.0
+ ip nat inside
+ ip access-group guest in
+!
+interface GigabitEthernet0/1
+ ip address 100.100.100.1 255.255.255.252
+ ip nat outside
+ duplex auto
+ speed auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+ip classless
+ip route 0.0.0.0 0.0.0.0 100.100.100.2 
+!
+ip flow-export version 9
+!
+!
+access-list 1 permit 192.168.0.0 0.0.255.255
+ip access-list extended finance
+ permit udp any any eq bootps
+ permit udp any any eq bootpc
+ permit ip 192.168.3.0 0.0.0.255 192.168.1.0 0.0.0.255
+ permit ip 192.168.3.0 0.0.0.255 192.168.3.0 0.0.0.255
+ deny ip any any
+ip access-list extended guest
+ deny ip 192.168.4.0 0.0.0.255 192.168.1.0 0.0.0.255
+ deny ip 192.168.4.0 0.0.0.255 192.168.2.0 0.0.0.255
+ deny ip 192.168.4.0 0.0.0.255 192.168.3.0 0.0.0.255
+ permit ip any any
+!
+!
+!
+!
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+!
+!
+end
